@@ -1,21 +1,89 @@
-from socket import socket
+from socket import socket, AF_INET, SOCK_STREAM
 import ast
 from pprint import pprint
 import time
 
-class manager:
+class BsManager:
     def __init__(self,addr):
-        self.s = socket()
+        self.s = socket(AF_INET, SOCK_STREAM)
         self.s.settimeout( 5 )
         self.s.connect( addr )
+        self.s.settimeout( None )
 
         #recv first prompt message ## " \nbombsquad>"
         self.s.recv( 1024 )
 
-        #encode some text
-        self.MESSAGES = 'bsInternal._getChatMessages()'.encode()
-        self.ROSTER = 'bsInternal._getGameRoster()'.encode()
-        self.PLAYERS = 'bs.getSession().players'.encode()
+        #some texts
+        self.MESSAGES = 'bsInternal._getChatMessages()'
+        self.ROSTER = 'bsInternal._getGameRoster()'
+        self.PLAYERS = '[p.getName() for p in bs.getSession().players]'
+        self.SEND_MESSAGE = 'bsInternal._chatMessage("{}")'
+        self.KICK = 'bsInternal._disconnectClient({})'
+        self.SLOMO = 'setattr( bs.getNodes()[0] , u"slowMotion" , {} )'
+        
+        self.SHIELDS = '''
+for p in bs.getSession().players:
+    if p.getID() == {}:
+        p.actor.equipShields()
+        '''
+
+        self.GLOVES = '''
+for p in bs.getSession().players:
+    if p.getID() == {}:
+        p.actor.equipBoxingGloves()
+        '''
+
+        self.SPEEDUP = '''
+for p in bs.getSession().players:
+    if p.getID() == {}:
+        if p.actor.node.exists():
+            setattr(p.actor.node,u'hockey',True)
+        '''
+
+        self.FLY = '''
+for p in bs.getSession().players:
+    if p.getID() == {}:
+        if p.actor.node.exists():
+            setattr(p.actor.node,u'fly',True)
+        '''
+
+        self.INVINCIBLE = '''
+for p in bs.getSession().players:
+    if p.getID() == {}:
+        if p.actor.node.exists():
+            setattr(p.actor.node,u'invincible',True)
+        '''
+
+        self.FREEZE = '''
+for p in bs.getSession().players:
+    if p.getID() == {}:
+        if p.actor.node.exists():
+            setattr(p.actor.node,u'frozen',True)
+        '''
+
+        self.CURSE = '''
+for p in bs.getSession().players:
+    if p.getID() == {}:
+        p.actor.curse()
+        '''
+
+        self.KILL = '''
+for p in bs.getSession().players:
+    if p.getID() == {}:
+        p.actor.shatter()
+        '''
+
+        self.SET_BOMBTYPE = '''
+for p in bs.getSession().players:
+    if p.getID() == {}:
+        p.actor.bombType = {}
+        '''
+
+        self.SET_HITPOINTS = '''
+for p in bs.getSession().players:
+    if p.getID() == {}:
+        p.actor.hitPoints = {}
+        '''
 
         self.messages = []
 
@@ -40,24 +108,28 @@ class manager:
                     time.sleep( 0.1 )
             except:
                 pass
+        self.s.setblocking(1)
         return ''.join(total_data)
 
     def getMessages( self ):
-        self.s.send( self.MESSAGES )
+        self.s.send( self.MESSAGES.encode() )
 
         ##strip last 12 character which is always " \nbombsquad>"
         self.messages = ast.literal_eval( self.recv_long()[:-12] )
-
         return self.messages
 
     def getPlayers( self ):
-        self.s.send( self.PLAYERS )
+        temp = self.getRoster()
+        players = []
+        for item in temp:
+            for player in item['players']:
+                player['clientID'] = item['clientID']
+                players.append(player)
+        return players
 
-        ##strip last 12 character which is always " \nbombsquad>"
-        return ast.literal_eval( self.recv_long()[:-12] )
 
     def getRoster( self ):
-        self.s.send( self.ROSTER )
+        self.s.send( self.ROSTER.encode() )
 
         ##strip last 12 character which is always " \nbombsquad>"
         return ast.literal_eval( self.recv_long()[:-12] )
@@ -75,16 +147,56 @@ class manager:
         return self.messages
 
     def sendMessage( self , msg ):
-        pass
+        self.s.send( self.SEND_MESSAGE.format( msg ).encode() )
+        self.s.recv( 1024 )
 
-    def kick( self , clientId ):
-        pass
+    def kick( self , clientID ):
+        self.s.send( self.KICK.format( clientID ).encode() )
+        self.s.recv(1024)
 
-    def slomo( self ):
-        pass
+    def slomo( self , onOff ):
+        self.s.send( self.SLOMO.format(onOff).encode() )
+        self.s.recv(1024)
 
-    def shields ( self , playerIndex ):
-        pass
+    def shields ( self , playerID ):
+        self.s.send( self.SHIELDS.format( playerID ).encode() )
+        self.s.recv(1024)
+
+    def gloves ( self , playerID ):
+        self.s.send( self.GLOVES.format( playerID ).encode() )
+        self.s.recv(1024)
+
+    def speedup ( self , playerID ):
+        self.s.send( self.SPEEDUP.format( playerID ).encode() )
+        self.s.recv(1024)
+
+    def fly ( self , playerID ):
+        self.s.send( self.FLY.format( playerID ).encode() )
+        self.s.recv(1024)
+
+    def invincible ( self , playerID ):
+        self.s.send( self.INVINCIBLE.format( playerID ).encode() )
+        self.s.recv(1024)
+
+    def freeze ( self , playerID ):
+        self.s.send( self.FREEZE.format( playerID ).encode() )
+        self.s.recv(1024)
+
+    def curse ( self , playerID ):
+        self.s.send( self.CURSE.format( playerID ).encode() )
+        self.s.recv(1024)
+
+    def kill ( self , playerID ):
+        self.s.send( self.KILL.format( playerID ).encode() )
+        self.s.recv(1024)
+
+    def setBombType ( self , playerID , bombType ):
+        self.s.send( self.SET_HITPOINTS.format( playerID , bombType ).encode() )
+        self.s.recv(1024)
+
+    def setHitPoints( self , playerID , hp ):
+        self.s.send( self.SET_HITPOINTS.format( playerID , hp ).encode() )
+        self.s.recv(1024)
 
 
 
