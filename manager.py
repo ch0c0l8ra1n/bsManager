@@ -16,7 +16,7 @@ class BsManager:
         #some texts
         self.MESSAGES = 'bsInternal._getChatMessages()'
         self.ROSTER = 'bsInternal._getGameRoster()'
-        self.PLAYERS = '[p.getName() for p in bs.getSession().players]'
+        self.PLAYERS = '[ p.getName() for p in bs.getSession().players ]'
         self.SEND_MESSAGE = 'bsInternal._chatMessage("{}")'
         self.KICK = 'bsInternal._disconnectClient({})'
         self.SLOMO = 'setattr( bs.getNodes()[0] , u"slowMotion" , {} )'
@@ -37,28 +37,28 @@ for p in bs.getSession().players:
 for p in bs.getSession().players:
     if p.getID() == {}:
         if p.actor.node.exists():
-            setattr(p.actor.node,u'hockey',True)
+            setattr( p.actor.node , u'hockey' , True )
         '''
 
         self.FLY = '''
 for p in bs.getSession().players:
     if p.getID() == {}:
         if p.actor.node.exists():
-            setattr(p.actor.node,u'fly',True)
+            setattr( p.actor.node , u'fly' , True )
         '''
 
         self.INVINCIBLE = '''
 for p in bs.getSession().players:
     if p.getID() == {}:
         if p.actor.node.exists():
-            setattr(p.actor.node,u'invincible',True)
+            setattr( p.actor.node , u'invincible' , True )
         '''
 
         self.FREEZE = '''
 for p in bs.getSession().players:
     if p.getID() == {}:
         if p.actor.node.exists():
-            setattr(p.actor.node,u'frozen',True)
+            setattr( p.actor.node , u'frozen' , True )
         '''
 
         self.CURSE = '''
@@ -76,7 +76,7 @@ for p in bs.getSession().players:
         self.SET_BOMBTYPE = '''
 for p in bs.getSession().players:
     if p.getID() == {}:
-        p.actor.bombType = {}
+        p.actor.bombType = "{}"
         '''
 
         self.SET_HITPOINTS = '''
@@ -85,7 +85,8 @@ for p in bs.getSession().players:
         p.actor.hitPoints = {}
         '''
 
-        self.messages = []
+        self.messages = self.getMessages()
+        self.players = self.getPlayers()
 
 
     #Sometimes s.recv returns incomplete message, so setup a 
@@ -110,6 +111,7 @@ for p in bs.getSession().players:
                 pass
         self.s.setblocking(1)
         return ''.join(total_data)
+    
 
     def getMessages( self ):
         self.s.send( self.MESSAGES.encode() )
@@ -124,7 +126,10 @@ for p in bs.getSession().players:
         for item in temp:
             for player in item['players']:
                 player['clientID'] = item['clientID']
+                player.pop('nameFull')
                 players.append(player)
+
+        self.players = players
         return players
 
 
@@ -191,12 +196,15 @@ for p in bs.getSession().players:
         self.s.recv(1024)
 
     def setBombType ( self , playerID , bombType ):
-        self.s.send( self.SET_HITPOINTS.format( playerID , bombType ).encode() )
+        self.s.send( self.SET_BOMBTYPE.format( playerID , bombType ).encode() )
         self.s.recv(1024)
 
     def setHitPoints( self , playerID , hp ):
         self.s.send( self.SET_HITPOINTS.format( playerID , hp ).encode() )
         self.s.recv(1024)
+
+    def close( self ):
+        self.s.close()
 
 
 
