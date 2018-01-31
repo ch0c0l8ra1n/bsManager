@@ -10,7 +10,7 @@ man = BsManager( ("127.0.0.1",43250) ) # Note that the port is for your telnet s
 
 Usage:
 
-getPlayers() returns a list if dict containing the name, clientId, and playerId for each player in the game.
+getPlayers() returns a list of dict containing the name, clientId, and playerId for each player in the game.
 
 kick() takes an integer as client id and kicks out the player.
 kickById() #todo
