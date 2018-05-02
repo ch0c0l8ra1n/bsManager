@@ -15,7 +15,7 @@ class BsManager:
         # Receive first prompt message ## " \nbombsquad>".
         self.s.recv(1024)
 
-        #some texts
+        # Some texts to send as commands to telnet server
         self.MESSAGES = 'bsInternal._getChatMessages()'
         self.ROSTER = 'bsInternal._getGameRoster()'
         self.PLAYERS = '[ p.getName() for p in bs.getSession().players ]'
@@ -55,10 +55,10 @@ class BsManager:
         data = ''
         begin = time.time()
         while True:
-            #if you got some data, then break after wait sec
+            # If you got some data, then break after wait sec
             if total_data and time.time() - begin > 2:
                 break
-            #if you got no data at all, wait a little longer
+            # If you got no data at all, wait a little longer
             elif time.time() - begin > 2:
                 break
             try:
@@ -94,7 +94,7 @@ for p in bs.getSession().players:
         """
         self.s.send(self.MESSAGES.encode())
 
-        ##strip last 12 character which is always " \nbombsquad>"
+        # Strip last 12 character which is always " \nbombsquad>"
         self.messages = ast.literal_eval(self.recv_long()[:-12])
         return self.messages
 
@@ -120,7 +120,7 @@ for p in bs.getSession().players:
         """
         self.s.send(self.ROSTER.encode())
 
-        ##strip last 12 character which is always " \nbombsquad>"
+        # Strip last 12 character which is always " \nbombsquad>"
         return ast.literal_eval(self.recv_long()[:-12])
 
     def getNewMessages(self):
@@ -133,7 +133,7 @@ for p in bs.getSession().players:
         if len(self.messages) > len(temp):
             return self.messages[len(temp):]
         for i in range(len(temp)):
-            if all(temp[j] == self.messages[j-i] for j in range(i,len(temp))):
+            if all(temp[j] == self.messages[j-i] for j in range(i, len(temp))):
                     if i == 0:
                             return []
                     return self.messages[(-1)*i:]
