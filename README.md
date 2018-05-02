@@ -44,8 +44,8 @@ Here is a small example to get started:
 ## Documentation
 
 Currently there is no proper documentation online. You can however, take a look
-in `manager.py` to understand what all various methods are available and what
-purpose they serve.
+in [manager.py](manager.py) to understand what all various methods are available
+and what purpose they serve.
 
 ## Disclaimer
 
