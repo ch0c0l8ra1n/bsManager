@@ -30,6 +30,12 @@ Here is a small example to get started:
 # All the powerups (player status effects) take in an integer which
 # is the PlayerID.
 # Note that PlayerID and ClientID are different.
+
+# Increase blast radius to 6 for Jack's bombs.
+>>> man.setBombType(0, 6)
+
+# Make Magua move around faster.
+>>> man.speedup(20, True)
 ```
 
 ## Documentation
