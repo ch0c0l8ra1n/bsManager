@@ -31,11 +31,14 @@ Here is a small example to get started:
 # is the PlayerID.
 # Note that PlayerID and ClientID are different.
 
-# Increase blast radius to 6 for Jack's bombs.
->>> man.setBombType(0, 6)
+# Increase blast radius to 6.5 for Jack's bombs.
+>>> man.setBlastRadius(0, 6.5)
 
 # Make Magua move around faster.
 >>> man.speedup(20, True)
+
+# Let's turn on slow motion for the current game round.
+>>> man.slomo(True)
 ```
 
 ## Documentation
