@@ -1,16 +1,18 @@
 from socket import socket, AF_INET, SOCK_STREAM
 import ast
-from pprint import pprint
 import time
 
 class BsManager:
     def __init__(self,addr):
+        """
+        Connect the telnet session to BombSquad instance.
+        """
         self.s = socket(AF_INET, SOCK_STREAM)
         self.s.settimeout(5)
         self.s.connect(addr)
         self.s.settimeout(None)
 
-        #recv first prompt message ## " \nbombsquad>"
+        # Receive first prompt message ## " \nbombsquad>".
         self.s.recv(1024)
 
         #some texts
@@ -43,13 +45,16 @@ class BsManager:
         self.players = self.getPlayers()
 
 
-    #Sometimes s.recv returns incomplete message, so setup a
     def recv_long(self):
+        """
+        Sometimes s.recv returns incomplete message, so setup a
+        way to receive the complete message in portions.
+        """
         self.s.setblocking(0)
         total_data = []
         data = ''
         begin = time.time()
-        while 1:
+        while True:
             #if you got some data, then break after wait sec
             if total_data and time.time() - begin > 2:
                 break
@@ -57,7 +62,7 @@ class BsManager:
             elif time.time() - begin > 2:
                 break
             try:
-                data=self.s.recv(8192)
+                data = self.s.recv(8192)
                 if data:
                     total_data.append(data.decode("utf"))
                     begin = time.time()
@@ -69,6 +74,10 @@ class BsManager:
         return ''.join(total_data)
 
     def _make_command(self, call, node=False):
+        """
+        Generates the command to be run in the connected
+        telnet session.
+        """
         cmd = '''
 for p in bs.getSession().players:
     if p.getID() == {}:'''
@@ -80,13 +89,19 @@ for p in bs.getSession().players:
         return cmd
 
     def getMessages(self):
+        """
+        Gets a list of current messages (upto 40).
+        """
         self.s.send(self.MESSAGES.encode())
 
         ##strip last 12 character which is always " \nbombsquad>"
-        self.messages = ast.literal_eval( self.recv_long()[:-12] )
+        self.messages = ast.literal_eval(self.recv_long()[:-12])
         return self.messages
 
     def getPlayers(self):
+        """
+        Returns a list of players currently playing the game round.
+        """
         temp = self.getRoster()
         players = []
         for item in temp:
@@ -100,12 +115,19 @@ for p in bs.getSession().players:
 
 
     def getRoster(self):
-        self.s.send( self.ROSTER.encode() )
+        """
+        Returns a list of players currently connected to the server.
+        """
+        self.s.send(self.ROSTER.encode())
 
         ##strip last 12 character which is always " \nbombsquad>"
-        return ast.literal_eval( self.recv_long()[:-12] )
+        return ast.literal_eval(self.recv_long()[:-12])
 
     def getNewMessages(self):
+        """
+        Returns new messages
+        (after last call to getNewMessages() or getMessages()).
+        """
         temp = self.messages
         self.getMessages()
         if len(self.messages) > len(temp):
@@ -118,93 +140,154 @@ for p in bs.getSession().players:
         return self.messages
 
     def sendMessage(self, msg):
+        """
+        Send a message from a host.
+        """
         self.s.send(self.SEND_MESSAGE.format(msg).encode())
         self.s.recv(1024)
 
     def kick(self, clientID):
+        """
+        Kick a player by clientID.
+        """
         cmd = self._make_command(self.KICK)
         self.s.send(cmd.format(clientID).encode())
         self.s.recv(1024)
 
     def slomo(self, switch):
+        """
+        Enable or disable slow motion ingame.
+        """
         cmd = self._make_command(self.SLOMO)
         self.s.send(cmd.format(switch).encode())
         self.s.recv(1024)
 
     def shields(self, playerID):
+        """
+        Gives shield to the respective player ID.
+        """
         cmd = self._make_command(self.SHIELDS)
         self.s.send(cmd.format(playerID).encode())
         self.s.recv(1024)
 
     def gloves(self, playerID):
+        """
+        Gives boxing gloves to the respective player ID.
+        """
         cmd = self._make_command(self.GLOVES)
         self.s.send(cmd.format(playerID).encode())
         self.s.recv(1024)
 
     def speedup(self, playerID, switch=True):
+        """
+        Increase moving speed of the respective player ID.
+        """
         cmd = self._make_command(self.SPEEDUP, node=True)
         self.s.send(cmd.format(playerID, switch).encode())
         self.s.recv(1024)
 
     def fly(self, playerID, switch=True):
+        """
+        Enables fly mode for the respective player ID.
+        """
         cmd = self._make_command(self.FLY, node=True)
         self.s.send(cmd.format(playerID, switch).encode())
         self.s.recv(1024)
 
     def invincible(self, playerID, switch=True):
+        """
+        Makes the player ID invincible to everything
+        except curses and falling off cliffs.
+        """
         cmd = self._make_command(self.INVINCIBLE, node=True)
         self.s.send(cmd.format(playerID, switch).encode())
         self.s.recv(1024)
 
     def freeze(self, playerID, switch=True):
+        """
+        Freezes the respective player ID (ice bomb like).
+        """
         cmd = self._make_command(self.FREEZE, node=True)
         self.s.send(cmd.format(playerID, switch).encode())
         self.s.recv(1024)
 
     def curse(self, playerID):
+        """
+        Curses the respective player ID.
+        """
         cmd = self._make_command(self.CURSE)
         self.s.send(cmd.format(playerID).encode())
         self.s.recv(1024)
 
     def kill(self, playerID):
+        """
+        Kills the respective player ID.
+        """
         cmd = self._make_command(self.KILL)
         self.s.send(cmd.format(playerID).encode())
         self.s.recv(1024)
 
     def setPunchPowerScale(self, playerID, punchPowerScale):
+        """
+        Set the damage multiplier for punches for the respective
+        player ID.
+        """
         cmd = self._make_command(self.SET_PUNCHPOWERSCALE)
         self.s.send(cmd.format(playerID, punchPowerScale).encode())
         self.s.recv(1024)
 
     def setPunchCoolDown(self, playerID, punchCoolDown):
+        """
+        Set the delay between consecutive punches (in ms).
+        """
         cmd = self._make_command(self.SET_PUNCHCOOLDOWN)
         self.s.send(cmd.format(playerID, punchCoolDown).encode())
         self.s.recv(1024)
 
     def setImpactScale(self, playerID, impactScale):
+        """
+        Set the damage multiplier for bombs (including land
+        mines) for the respective player ID.
+        """
         cmd = self._make_command(self.SET_IMPACTSCALE)
         self.s.send(cmd.format(playerID, impactScale).encode())
         self.s.recv(1024)
 
     def setBombType(self, playerID, bombType):
+        """
+        Set the current bomb type for the respective player ID.
+        Possible values: "normal, "ice", "sticky", impact", "tnt".
+        """
         cmd = self._make_command(self.SET_BOMBTYPE)
         self.s.send(cmd.format(playerID, bombType).encode())
         self.s.recv(1024)
 
     def setBombCount(self, playerID, bombCount):
+        """
+        Set the number of bombs a player ID can throw at a time.
+        """
         cmd = self._make_command(self.SET_BOMBCOUNT)
         self.s.send(cmd.format(playerID, bombCount).encode())
         self.s.recv(1024)
 
     def setBlastRadius(self, playerID, blastRadius):
+        """
+        Set the bomb blast radius for the player ID.
+        """
         cmd = self._make_command(self.SET_BLASTRADIUS)
         self.s.send(cmd.format(playerID, blastRadius).encode())
         self.s.recv(1024)
 
     def setHitPoints(self, playerID, hp):
+        """
+        Set current HitPoints for the player ID.
+        """
         cmd = self._make_command(self.SET_HITPOINTS)
         self.s.send(cmd.format(playerID, hp).encode())
         self.s.recv(1024)
 
     def close(self):
+        """
+        Close this telnet session.
+        """
         self.s.close()
