@@ -116,8 +116,12 @@ for p in bs.getSession().players:
                    "profiles" : x.getInputDevice()._getPlayerProfiles(),
                    "account"  : x.getInputDevice()._getAccountName(0) }
                for x in bs.getSession().players ]'''
+
         self.s.send(x.encode())
-        return ast.literal_eval(self.recv_long()[:-12])
+        players = ast.literal_eval(self.recv_long()[:-12])
+
+        self.players = players
+        return players
 
     def getRoster(self):
         """
