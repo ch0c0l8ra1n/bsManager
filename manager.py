@@ -158,8 +158,7 @@ for p in bs.getSession().players:
         """
         Enable or disable slow motion ingame.
         """
-        cmd = self._make_command(self.SLOMO)
-        self.s.send(cmd.format(switch).encode())
+        self.s.send(self.SLOMO.format(switch).encode())
         self.s.recv(1024)
 
     def shields(self, playerID):
