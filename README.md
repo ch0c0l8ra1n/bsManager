@@ -109,10 +109,3 @@ Here is a small example to get started:
 Currently there is no proper documentation online. You can however, take a look
 in [manager.py](manager.py) to understand what all various methods are available
 and what purpose they serve.
-
-## Disclaimer
-
-Thanks to [rjpj2016](https://github.com/rjpj2016) for
-[working on this unofficial API](https://github.com/rjpj2016/bsManager)
-and [Eric Froemling](https://www.froemling.net/about) for creating the
-awesome [BombSquad](https://www.froemling.net/apps/bombsquad) game.
