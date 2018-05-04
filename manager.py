@@ -153,22 +153,29 @@ for p in bs.getSession().players:
         Send a message from a host.
         """
         self.s.send(self.SEND_MESSAGE.format(msg).encode())
-        return self.s.recv(1024)
+        return self.s.recv(1024)[:-12]
 
-    def kick(self, clientID):
+    def kickByClientID(self, clientID):
         """
         Kick a player by clientID.
         """
-        cmd = self._make_command(self.KICK)
-        self.s.send(cmd.format(clientID).encode())
-        return self.s.recv(1024)
+        self.s.send(self.KICK.format(clientID).encode())
+        return bool(self.s.recv(1024)[:-12])
+
+    def kickByPlayerID(self, playerID):
+        """
+        Kick a player by playerID.
+        """
+        for player in self.players:
+            if player['playerID'] == playerID:
+                return self.kickByClientID(player['clientID'])
 
     def slomo(self, switch):
         """
         Enable or disable slow motion ingame.
         """
         self.s.send(self.SLOMO.format(switch).encode())
-        return self.s.recv(1024)
+        return self.s.recv(1024)[:-12]
 
     def shields(self, playerID):
         """
@@ -176,7 +183,7 @@ for p in bs.getSession().players:
         """
         cmd = self._make_command(self.SHIELDS)
         self.s.send(cmd.format(playerID).encode())
-        return self.s.recv(1024)
+        return self.s.recv(1024)[:-12]
 
     def gloves(self, playerID):
         """
@@ -184,7 +191,7 @@ for p in bs.getSession().players:
         """
         cmd = self._make_command(self.GLOVES)
         self.s.send(cmd.format(playerID).encode())
-        return self.s.recv(1024)
+        return self.s.recv(1024)[:-12]
 
     def speedup(self, playerID, switch=True):
         """
@@ -192,7 +199,7 @@ for p in bs.getSession().players:
         """
         cmd = self._make_command(self.SPEEDUP, node=True)
         self.s.send(cmd.format(playerID, switch).encode())
-        return self.s.recv(1024)
+        return self.s.recv(1024)[:-12]
 
     def fly(self, playerID, switch=True):
         """
@@ -200,7 +207,7 @@ for p in bs.getSession().players:
         """
         cmd = self._make_command(self.FLY, node=True)
         self.s.send(cmd.format(playerID, switch).encode())
-        return self.s.recv(1024)
+        return self.s.recv(1024)[:-12]
 
     def invincible(self, playerID, switch=True):
         """
@@ -209,7 +216,7 @@ for p in bs.getSession().players:
         """
         cmd = self._make_command(self.INVINCIBLE, node=True)
         self.s.send(cmd.format(playerID, switch).encode())
-        return self.s.recv(1024)
+        return self.s.recv(1024)[:-12]
 
     def freeze(self, playerID, switch=True):
         """
@@ -217,7 +224,7 @@ for p in bs.getSession().players:
         """
         cmd = self._make_command(self.FREEZE, node=True)
         self.s.send(cmd.format(playerID, switch).encode())
-        return self.s.recv(1024)
+        return self.s.recv(1024)[:-12]
 
     def curse(self, playerID):
         """
@@ -225,7 +232,7 @@ for p in bs.getSession().players:
         """
         cmd = self._make_command(self.CURSE)
         self.s.send(cmd.format(playerID).encode())
-        return self.s.recv(1024)
+        return self.s.recv(1024)[:-12]
 
     def kill(self, playerID):
         """
@@ -233,7 +240,7 @@ for p in bs.getSession().players:
         """
         cmd = self._make_command(self.KILL)
         self.s.send(cmd.format(playerID).encode())
-        return self.s.recv(1024)
+        return self.s.recv(1024)[:-12]
 
     def setPunchPowerScale(self, playerID, punchPowerScale):
         """
@@ -242,7 +249,7 @@ for p in bs.getSession().players:
         """
         cmd = self._make_command(self.SET_PUNCHPOWERSCALE)
         self.s.send(cmd.format(playerID, punchPowerScale).encode())
-        return self.s.recv(1024)
+        return self.s.recv(1024)[:-12]
 
     def setPunchCoolDown(self, playerID, punchCoolDown):
         """
@@ -250,7 +257,7 @@ for p in bs.getSession().players:
         """
         cmd = self._make_command(self.SET_PUNCHCOOLDOWN)
         self.s.send(cmd.format(playerID, punchCoolDown).encode())
-        return self.s.recv(1024)
+        return self.s.recv(1024)[:-12]
 
     def setImpactScale(self, playerID, impactScale):
         """
@@ -259,7 +266,7 @@ for p in bs.getSession().players:
         """
         cmd = self._make_command(self.SET_IMPACTSCALE)
         self.s.send(cmd.format(playerID, impactScale).encode())
-        return self.s.recv(1024)
+        return self.s.recv(1024)[:-12]
 
     def setBombType(self, playerID, bombType):
         """
@@ -268,7 +275,7 @@ for p in bs.getSession().players:
         """
         cmd = self._make_command(self.SET_BOMBTYPE)
         self.s.send(cmd.format(playerID, bombType).encode())
-        return self.s.recv(1024)
+        return self.s.recv(1024)[:-12]
 
     def setBombCount(self, playerID, bombCount):
         """
@@ -276,7 +283,7 @@ for p in bs.getSession().players:
         """
         cmd = self._make_command(self.SET_BOMBCOUNT)
         self.s.send(cmd.format(playerID, bombCount).encode())
-        return self.s.recv(1024)
+        return self.s.recv(1024)[:-12]
 
     def setBlastRadius(self, playerID, blastRadius):
         """
@@ -284,7 +291,7 @@ for p in bs.getSession().players:
         """
         cmd = self._make_command(self.SET_BLASTRADIUS)
         self.s.send(cmd.format(playerID, blastRadius).encode())
-        return self.s.recv(1024)
+        return self.s.recv(1024)[:-12]
 
     def setHitPoints(self, playerID, hp):
         """
@@ -292,7 +299,7 @@ for p in bs.getSession().players:
         """
         cmd = self._make_command(self.SET_HITPOINTS)
         self.s.send(cmd.format(playerID, hp).encode())
-        return self.s.recv(1024)
+        return self.s.recv(1024)[:-12]
 
     def close(self):
         """
