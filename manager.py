@@ -3,7 +3,7 @@ import ast
 import time
 
 class BsManager:
-    def __init__(self,addr):
+    def __init__(self, addr):
         """
         Connect the telnet session to BombSquad instance.
         """
@@ -19,6 +19,8 @@ class BsManager:
         self.MESSAGES = 'bsInternal._getChatMessages()'
         self.ROSTER = 'bsInternal._getGameRoster()'
         self.PLAYERS = '[ p.getName() for p in bs.getSession().players ]'
+        self.POWERUPS = 'bs.getActivity().setupStandardPowerupDrops()'
+        self.ENDGAME = 'bs.getActivity().endGame()'
         self.SEND_MESSAGE = 'bsInternal._chatMessage("{}")'
         self.KICK = 'bsInternal._disconnectClient({})'
         self.SLOMO = 'bs.getNodes()[0].slowMotion = {}'
@@ -40,6 +42,7 @@ class BsManager:
         self.SET_BOMBCOUNT = 'p.actor.bombCount = {}'
         self.SET_HITPOINTS = 'p.actor.hitPoints = {}'
         self.SET_BLASTRADIUS = 'p.actor.blastRadius = {}'
+        self.SET_TIMELIMIT = 'bs.getActivity().setupStandardTimeLimit({})'
 
         self.messages = self.getMessages()
         self.players = self.getPlayers()
@@ -118,7 +121,17 @@ for p in bs.getSession().players:
                for x in bs.getSession().players ]'''
 
         self.s.send(x.encode())
-        players = ast.literal_eval(self.recv_long()[:-12])
+
+        while True:
+            try:
+                players = ast.literal_eval(self.recv_long()[:-12])
+            except SyntaxError:
+                # Sometimes the telnet session may deliver us
+                # data in abnormal format, so keep looping until it
+                # returns data in expected format.
+                pass
+            else:
+                break
 
         self.players = players
         return players
@@ -147,6 +160,22 @@ for p in bs.getSession().players:
                             return []
                     return self.messages[(-1)*i:]
         return self.messages
+
+    def dropRandomPowerups(self):
+        """
+        Drops random powers around the map just like the
+        game does it automatically once in a while.
+        """
+        self.s.send(self.POWERUPS.encode())
+        return self.s.recv(1024)[:-12]
+
+    def endGame(self):
+        """
+        End the current game round. The current score decides
+        the winning team.
+        """
+        self.s.send(self.ENDGAME.encode())
+        return self.s.recv(1024)[:-12]
 
     def sendMessage(self, msg):
         """
@@ -299,6 +328,14 @@ for p in bs.getSession().players:
         """
         cmd = self._make_command(self.SET_HITPOINTS)
         self.s.send(cmd.format(playerID, hp).encode())
+        return self.s.recv(1024)[:-12]
+
+    def setTimeLimit(self, limit):
+        """
+        Change time limit for the current game round (value
+        passed must be in seconds).
+        """
+        self.s.send(self.SET_TIMELIMIT.format(limit).encode())
         return self.s.recv(1024)[:-12]
 
     def close(self):
