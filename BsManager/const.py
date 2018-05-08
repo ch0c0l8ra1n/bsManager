@@ -1,0 +1,28 @@
+# Some texts to send as commands to telnet server
+MESSAGES = 'bsInternal._getChatMessages()'
+ROSTER = 'bsInternal._getGameRoster()'
+PLAYERS = '[ p.getName() for p in bs.getSession().players ]'
+POWERUPS = 'bs.getActivity().setupStandardPowerupDrops()'
+ENDGAME = 'bs.getActivity().endGame()'
+SEND_MESSAGE = 'bsInternal._chatMessage("{}")'
+KICK = 'bsInternal._disconnectClient({})'
+SLOMO = 'bs.getNodes()[0].slowMotion = {}'
+
+SHIELDS = 'p.actor.equipShields()'
+GLOVES = 'p.actor.equipBoxingGloves()'
+SPEEDUP = 'p.actor.node.hockey = {}'
+FLY = 'p.actor.node.fly = {}'
+INVINCIBLE = 'p.actor.node.invincible = {}'
+FREEZE = 'p.actor.node.frozen = {}'
+
+CURSE = 'p.actor.curse()'
+KILL = 'p.actor.shatter()'
+
+SET_PUNCHPOWERSCALE = 'p.actor._punchPowerScale = {}'
+SET_PUNCHCOOLDOWN = 'p.actor._punchCooldown = {}'
+SET_IMPACTSCALE = 'p.actor._impactScale = {}'
+SET_BOMBTYPE = 'p.actor.bombType = "{}"'
+SET_BOMBCOUNT = 'p.actor.bombCount = {}'
+SET_HITPOINTS = 'p.actor.hitPoints = {}'
+SET_BLASTRADIUS = 'p.actor.blastRadius = {}'
+SET_TIMELIMIT = 'bs.getActivity().setupStandardTimeLimit({})'

@@ -1,4 +1,5 @@
 from socket import socket, AF_INET, SOCK_STREAM
+from . import const
 import ast
 import time
 
@@ -14,35 +15,6 @@ class BsManager:
 
         # Receive first prompt message ## " \nbombsquad>".
         self.s.recv(1024)
-
-        # Some texts to send as commands to telnet server
-        self.MESSAGES = 'bsInternal._getChatMessages()'
-        self.ROSTER = 'bsInternal._getGameRoster()'
-        self.PLAYERS = '[ p.getName() for p in bs.getSession().players ]'
-        self.POWERUPS = 'bs.getActivity().setupStandardPowerupDrops()'
-        self.ENDGAME = 'bs.getActivity().endGame()'
-        self.SEND_MESSAGE = 'bsInternal._chatMessage("{}")'
-        self.KICK = 'bsInternal._disconnectClient({})'
-        self.SLOMO = 'bs.getNodes()[0].slowMotion = {}'
-
-        self.SHIELDS = 'p.actor.equipShields()'
-        self.GLOVES = 'p.actor.equipBoxingGloves()'
-        self.SPEEDUP = 'p.actor.node.hockey = {}'
-        self.FLY = 'p.actor.node.fly = {}'
-        self.INVINCIBLE = 'p.actor.node.invincible = {}'
-        self.FREEZE = 'p.actor.node.frozen = {}'
-
-        self.CURSE = 'p.actor.curse()'
-        self.KILL = 'p.actor.shatter()'
-
-        self.SET_PUNCHPOWERSCALE = 'p.actor._punchPowerScale = {}'
-        self.SET_PUNCHCOOLDOWN = 'p.actor._punchCooldown = {}'
-        self.SET_IMPACTSCALE = 'p.actor._impactScale = {}'
-        self.SET_BOMBTYPE = 'p.actor.bombType = "{}"'
-        self.SET_BOMBCOUNT = 'p.actor.bombCount = {}'
-        self.SET_HITPOINTS = 'p.actor.hitPoints = {}'
-        self.SET_BLASTRADIUS = 'p.actor.blastRadius = {}'
-        self.SET_TIMELIMIT = 'bs.getActivity().setupStandardTimeLimit({})'
 
         self.messages = self.getMessages()
         self.players = self.getPlayers()
@@ -102,7 +74,7 @@ for p in bs.getSession().players:
         """
         Gets a list of current messages (upto 40).
         """
-        self.s.send(self.MESSAGES.encode())
+        self.s.send(const.MESSAGES.encode())
 
         # Strip last 12 character which is always " \nbombsquad>"
         self.messages = ast.literal_eval(self.recv_long()[:-12])
@@ -140,7 +112,7 @@ for p in bs.getSession().players:
         """
         Returns a list of players currently connected to the server.
         """
-        self.s.send(self.ROSTER.encode())
+        self.s.send(const.ROSTER.encode())
 
         # Strip last 12 character which is always " \nbombsquad>"
         return ast.literal_eval(self.recv_long()[:-12])
@@ -166,7 +138,7 @@ for p in bs.getSession().players:
         Drops random powers around the map just like the
         game does it automatically once in a while.
         """
-        self.s.send(self.POWERUPS.encode())
+        self.s.send(const.POWERUPS.encode())
         return self.s.recv(1024)[:-12]
 
     def endGame(self):
@@ -174,21 +146,21 @@ for p in bs.getSession().players:
         End the current game round. The current score decides
         the winning team.
         """
-        self.s.send(self.ENDGAME.encode())
+        self.s.send(const.ENDGAME.encode())
         return self.s.recv(1024)[:-12]
 
     def sendMessage(self, msg):
         """
         Send a message from a host.
         """
-        self.s.send(self.SEND_MESSAGE.format(msg).encode())
+        self.s.send(const.SEND_MESSAGE.format(msg).encode())
         return self.s.recv(1024)[:-12]
 
     def kickByClientID(self, clientID):
         """
         Kick a player by clientID.
         """
-        self.s.send(self.KICK.format(clientID).encode())
+        self.s.send(const.KICK.format(clientID).encode())
         return bool(self.s.recv(1024)[:-12])
 
     def kickByPlayerID(self, playerID):
@@ -203,14 +175,14 @@ for p in bs.getSession().players:
         """
         Enable or disable slow motion ingame.
         """
-        self.s.send(self.SLOMO.format(switch).encode())
+        self.s.send(const.SLOMO.format(switch).encode())
         return self.s.recv(1024)[:-12]
 
     def shields(self, playerID):
         """
         Gives shield to the respective player ID.
         """
-        cmd = self._make_command(self.SHIELDS)
+        cmd = self._make_command(const.SHIELDS)
         self.s.send(cmd.format(playerID).encode())
         return self.s.recv(1024)[:-12]
 
@@ -218,7 +190,7 @@ for p in bs.getSession().players:
         """
         Gives boxing gloves to the respective player ID.
         """
-        cmd = self._make_command(self.GLOVES)
+        cmd = self._make_command(const.GLOVES)
         self.s.send(cmd.format(playerID).encode())
         return self.s.recv(1024)[:-12]
 
@@ -226,7 +198,7 @@ for p in bs.getSession().players:
         """
         Increase moving speed of the respective player ID.
         """
-        cmd = self._make_command(self.SPEEDUP, node=True)
+        cmd = self._make_command(const.SPEEDUP, node=True)
         self.s.send(cmd.format(playerID, switch).encode())
         return self.s.recv(1024)[:-12]
 
@@ -234,7 +206,7 @@ for p in bs.getSession().players:
         """
         Enables fly mode for the respective player ID.
         """
-        cmd = self._make_command(self.FLY, node=True)
+        cmd = self._make_command(const.FLY, node=True)
         self.s.send(cmd.format(playerID, switch).encode())
         return self.s.recv(1024)[:-12]
 
@@ -243,7 +215,7 @@ for p in bs.getSession().players:
         Makes the player ID invincible to everything
         except curses and falling off cliffs.
         """
-        cmd = self._make_command(self.INVINCIBLE, node=True)
+        cmd = self._make_command(const.INVINCIBLE, node=True)
         self.s.send(cmd.format(playerID, switch).encode())
         return self.s.recv(1024)[:-12]
 
@@ -251,7 +223,7 @@ for p in bs.getSession().players:
         """
         Freezes the respective player ID (ice bomb like).
         """
-        cmd = self._make_command(self.FREEZE, node=True)
+        cmd = self._make_command(const.FREEZE, node=True)
         self.s.send(cmd.format(playerID, switch).encode())
         return self.s.recv(1024)[:-12]
 
@@ -259,7 +231,7 @@ for p in bs.getSession().players:
         """
         Curses the respective player ID.
         """
-        cmd = self._make_command(self.CURSE)
+        cmd = self._make_command(const.CURSE)
         self.s.send(cmd.format(playerID).encode())
         return self.s.recv(1024)[:-12]
 
@@ -267,7 +239,7 @@ for p in bs.getSession().players:
         """
         Kills the respective player ID.
         """
-        cmd = self._make_command(self.KILL)
+        cmd = self._make_command(const.KILL)
         self.s.send(cmd.format(playerID).encode())
         return self.s.recv(1024)[:-12]
 
@@ -276,7 +248,7 @@ for p in bs.getSession().players:
         Set the damage multiplier for punches for the respective
         player ID.
         """
-        cmd = self._make_command(self.SET_PUNCHPOWERSCALE)
+        cmd = self._make_command(const.SET_PUNCHPOWERSCALE)
         self.s.send(cmd.format(playerID, punchPowerScale).encode())
         return self.s.recv(1024)[:-12]
 
@@ -284,7 +256,7 @@ for p in bs.getSession().players:
         """
         Set the delay between consecutive punches (in ms).
         """
-        cmd = self._make_command(self.SET_PUNCHCOOLDOWN)
+        cmd = self._make_command(const.SET_PUNCHCOOLDOWN)
         self.s.send(cmd.format(playerID, punchCoolDown).encode())
         return self.s.recv(1024)[:-12]
 
@@ -293,7 +265,7 @@ for p in bs.getSession().players:
         Set the damage multiplier for bombs (including land
         mines) for the respective player ID.
         """
-        cmd = self._make_command(self.SET_IMPACTSCALE)
+        cmd = self._make_command(const.SET_IMPACTSCALE)
         self.s.send(cmd.format(playerID, impactScale).encode())
         return self.s.recv(1024)[:-12]
 
@@ -302,7 +274,7 @@ for p in bs.getSession().players:
         Set the current bomb type for the respective player ID.
         Possible values: "normal, "ice", "sticky", impact", "tnt".
         """
-        cmd = self._make_command(self.SET_BOMBTYPE)
+        cmd = self._make_command(const.SET_BOMBTYPE)
         self.s.send(cmd.format(playerID, bombType).encode())
         return self.s.recv(1024)[:-12]
 
@@ -310,7 +282,7 @@ for p in bs.getSession().players:
         """
         Set the number of bombs a player ID can throw at a time.
         """
-        cmd = self._make_command(self.SET_BOMBCOUNT)
+        cmd = self._make_command(const.SET_BOMBCOUNT)
         self.s.send(cmd.format(playerID, bombCount).encode())
         return self.s.recv(1024)[:-12]
 
@@ -318,7 +290,7 @@ for p in bs.getSession().players:
         """
         Set the bomb blast radius for the player ID.
         """
-        cmd = self._make_command(self.SET_BLASTRADIUS)
+        cmd = self._make_command(const.SET_BLASTRADIUS)
         self.s.send(cmd.format(playerID, blastRadius).encode())
         return self.s.recv(1024)[:-12]
 
@@ -326,7 +298,7 @@ for p in bs.getSession().players:
         """
         Set current HitPoints for the player ID.
         """
-        cmd = self._make_command(self.SET_HITPOINTS)
+        cmd = self._make_command(const.SET_HITPOINTS)
         self.s.send(cmd.format(playerID, hp).encode())
         return self.s.recv(1024)[:-12]
 
@@ -335,7 +307,7 @@ for p in bs.getSession().players:
         Change time limit for the current game round (value
         passed must be in seconds).
         """
-        self.s.send(self.SET_TIMELIMIT.format(limit).encode())
+        self.s.send(const.SET_TIMELIMIT.format(limit).encode())
         return self.s.recv(1024)[:-12]
 
     def close(self):
