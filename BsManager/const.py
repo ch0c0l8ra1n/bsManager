@@ -18,6 +18,11 @@ FREEZE = 'p.actor.node.frozen = {}'
 CURSE = 'p.actor.curse()'
 KILL = 'p.actor.shatter()'
 
+SET_COLOR = 'p.actor.node.color = {}'
+SET_COLORHIGHLIGHT = 'p.actor.node.highlight = {}'
+SET_COLORNAME = 'p.actor.node.nameColor = {}'
+SET_NAME = 'p.actor.node.name = "{}"'
+
 SET_PUNCHPOWERSCALE = 'p.actor._punchPowerScale = {}'
 SET_PUNCHCOOLDOWN = 'p.actor._punchCooldown = {}'
 SET_IMPACTSCALE = 'p.actor._impactScale = {}'

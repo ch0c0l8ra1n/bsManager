@@ -243,6 +243,41 @@ for p in bs.getSession().players:
         self.s.send(cmd.format(playerID).encode())
         return self.s.recv(1024)[:-12]
 
+    def setColor(self, playerID, color):
+        """
+        Set player character's main color by
+        passing a tuple containing RGB values.
+        """
+        cmd = self._make_command(const.SET_COLOR)
+        self.s.send(cmd.format(playerID, color).encode())
+        return self.s.recv(1024)[:-12]
+
+    def setColorHightlight(self, playerID, color):
+        """
+        Set player character's highlight color by
+        passing a tuple containing RGB values.
+        """
+        cmd = self._make_command(const.SET_COLORHIGHLIGHT)
+        self.s.send(cmd.format(playerID, color).encode())
+        return self.s.recv(1024)[:-12]
+
+    def setColorName(self, playerID, color):
+        """
+        Set player character's name color by passing
+        a tuple containing RGB values.
+        """
+        cmd = self._make_command(const.SET_COLORNAME)
+        self.s.send(cmd.format(playerID, color).encode())
+        return self.s.recv(1024)[:-12]
+
+    def setName(self, playerID, name):
+        """
+        Change player's current name.
+        """
+        cmd = self._make_command(const.SET_NAME)
+        self.s.send(cmd.format(playerID, name).encode())
+        return self.s.recv(1024)[:-12]
+
     def setPunchPowerScale(self, playerID, punchPowerScale):
         """
         Set the damage multiplier for punches for the respective
